@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Produtos — Hergaspar</title>
 <link rel="manifest" href="manifest.json">
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 <meta name="theme-color" content="#E07B29">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -901,11 +903,26 @@
     saveQueue();
   }
 
+  const firebaseConfig = {
+    apiKey: "AIzaSyCU2KgHAt6c6LaJLf8KcRpHEe7vGx1J1RU",
+    authDomain: "produtos-hergaspar.firebaseapp.com",
+    projectId: "produtos-hergaspar",
+    storageBucket: "produtos-hergaspar.firebasestorage.app",
+    messagingSenderId: "110103864757",
+    appId: "1:110103864757:web:720c6f6116ecd8523ae5fc",
+    measurementId: "G-JBCHL2KQ0E"
+  };
+
   async function initDb(){
     if (dbInitialized) return;
     try {
-      db = window.claude?.use ? await window.claude.use('db') : null;
-    } catch(e){ db = null; }
+      if (typeof firebase !== 'undefined'){
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+      } else {
+        db = null;
+      }
+    } catch(e){ console.error('Firebase init falhou:', e); db = null; }
 
     if (db){
       dbInitialized = true;
