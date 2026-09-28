@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hergaspar-produtos-v3';
+const CACHE_NAME = 'hergaspar-produtos-v4';
 const APP_SHELL = [
   './',
   './index.html',
@@ -24,22 +24,23 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Cache-first para o app shell, com atualização em segundo plano
+// Só trata dos ficheiros da própria app. Tudo o resto (Firebase, Google) passa direto.
+// Rede primeiro; se estiver offline, usa a cópia guardada.
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
 
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      const fetchPromise = fetch(event.request)
-        .then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            const copy = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-          }
-          return networkResponse;
-        })
-        .catch(() => cached);
-      return cached || fetchPromise;
-    })
+    fetch(req)
+      .then((res) => {
+        if (res && res.status === 200) {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
+        }
+        return res;
+      })
+      .catch(() => caches.match(req).then((cached) => cached || caches.match('./index.html')))
   );
 });
