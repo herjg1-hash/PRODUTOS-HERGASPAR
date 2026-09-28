@@ -667,19 +667,23 @@
       minStock: stockOn ? (Number(document.getElementById('f_minstock').value)||0) : 0,
       updatedAt: Date.now()
     };
-    if (editingId){
-      await saveProduct(editingId, data);
-    } else {
-      await createProduct(data);
-    }
+    const idToSave = editingId;
     closeSheet();
+    try {
+      if (idToSave){
+        saveProduct(idToSave, data).catch(err=>console.error('Erro ao guardar:', err));
+      } else {
+        createProduct(data).catch(err=>console.error('Erro ao criar:', err));
+      }
+    } catch(err){ console.error('Erro ao guardar:', err); }
   });
 
   document.getElementById('deleteBtn').addEventListener('click', async ()=>{
     if (!editingId) return;
     if (!confirm('Eliminar este artigo?')) return;
-    await deleteProduct(editingId);
+    const idToDelete = editingId;
     closeSheet();
+    deleteProduct(idToDelete).catch(err=>console.error('Erro ao eliminar:', err));
   });
 
   // ---- Quick stock movement sheet ----
