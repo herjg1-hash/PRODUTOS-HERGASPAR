@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hergaspar-produtos-v2';
+const CACHE_NAME = 'hergaspar-produtos-v3';
 const APP_SHELL = [
   './',
   './index.html',
